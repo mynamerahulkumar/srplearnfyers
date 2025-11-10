@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created By: Aseem Singhal
-Fyers API V3
-"""
+
 
 import datetime
 from fyers_apiv3 import fyersModel

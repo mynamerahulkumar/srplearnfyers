@@ -9,11 +9,11 @@ import pandas as pd
 import pytz
 
 #generate trading session
-client_id = open("client_id.txt",'r').read()
-access_token = open("access_token.txt",'r').read()
+client_id = open("secrets/client_id.txt",'r').read()
+access_token = open("secrets/access_token.txt",'r').read()
 
 # Initialize the FyersModel instance with your client_id, access_token, and enable async mode
-fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="")
+fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="/Users/rahulkumar/Documents/GitHub/srplearnfyers/1fyersalgotrade/logs")
 
 def fetchOHLC2(ticker,interval,duration):
     range_from = dt.date.today()-dt.timedelta(duration)

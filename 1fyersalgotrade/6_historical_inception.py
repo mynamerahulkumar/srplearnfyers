@@ -1,8 +1,4 @@
-"""
-Created By: Aseem Singhal
-Fyers API V3
 
-"""
 
 import os
 import datetime as dt

@@ -1,8 +1,4 @@
-"""
-Created By: Aseem Singhal
-Fyers API V3
 
-"""
 
 import pandas as pd
 from fyers_apiv3 import fyersModel
@@ -10,11 +6,11 @@ import pytz
 
 
 #generate trading session
-client_id = open("client_id.txt",'r').read()
-access_token = open("access_token.txt",'r').read()
+client_id = open("secrets/client_id.txt",'r').read()
+access_token = open("secrets/access_token.txt",'r').read()
 
 # Initialize the FyersModel instance with your client_id, access_token, and enable async mode
-fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="C:/Users/aseem/Downloads/")
+fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="/Users/rahulkumar/Documents/GitHub/srplearnfyers/1fyersalgotrade/logs")
 
 def fetchOHLC(ticker,interval,range_from, range_to):
     data = {
@@ -41,6 +37,8 @@ def fetchOHLC(ticker,interval,range_from, range_to):
     Daily : "D"
     range format: yyyy-mm-dd
     '''
+    # response = fyers.history(data=data)
+    # print(response)
     response = fyers.history(data=data)['candles']
 
     # Create a DataFrame
@@ -57,13 +55,13 @@ def fetchOHLC(ticker,interval,range_from, range_to):
     return (df)
 
 # Fetch OHLC data using the function
-response_df = fetchOHLC("NSE:NIFTY23SEP20000CE","5","2023-08-18", "2023-08-29")
+response_df = fetchOHLC("NSE:HDFCBANK-EQ","5","2025-08-18", "2025-10-25")# yyyy-mm-dd
 
 # Print the DataFrame
 print(response_df)
 
 # Save data to a CSV file
-response_df.to_csv('output.csv', index=False)
+response_df.to_csv('output_data/output_eq.csv', index=False)
 
 
 

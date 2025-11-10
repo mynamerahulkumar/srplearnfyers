@@ -1,5 +1,5 @@
 from pyotp import TOTP
 
-otpSecret = "ABCDEF"
+otpSecret = "Z55HB87108"
 token = TOTP(otpSecret).now()
 print("OTP:", token)

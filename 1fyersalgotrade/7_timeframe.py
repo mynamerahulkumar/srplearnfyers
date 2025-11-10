@@ -9,11 +9,12 @@ import pandas as pd
 import pytz
 
 #generate trading session
-client_id = open("client_id.txt",'r').read()
-access_token = open("access_token.txt",'r').read()
+client_id = open("secrets/client_id.txt",'r').read()
+access_token = open("secrets/access_token.txt",'r').read()
 
 # Initialize the FyersModel instance with your client_id, access_token, and enable async mode
-fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="")
+fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="/Users/rahulkumar/Documents/GitHub/srplearnfyers/1fyersalgotrade/logs")
+
 
 def fetchOHLC2(ticker,interval,duration):
     range_from = dt.date.today()-dt.timedelta(duration)
@@ -53,7 +54,7 @@ stock_df['Timestamp2'] = pd.to_datetime(stock_df['Timestamp2'])
 stock_df.drop(columns=['Timestamp'], inplace=True)
 stock_df.set_index('Timestamp2', inplace=True)
 print(stock_df)
-#stock_df.to_csv('sbin_1min.csv')
+stock_df.to_csv('output_data/sbin_1min.csv')
 
 min15_df = stock_df.resample('15T').agg({'Open': 'first', 'High': 'max', 'Low': 'min', 'Close': 'last', 'Volume': 'sum'})
 min15_df.dropna(inplace=True)
@@ -72,13 +73,18 @@ print(daily_df)
 
 #HOURLY WITH 9:15
 stock_df_2 = stock_df[stock_df.index.time <= pd.Timestamp('15:30').time()]
+
 stock_df_2.index = stock_df_2.index - pd.Timedelta(minutes=15)
+print("RUNNING TILL HERE,it will give data 9:00 AM to 15:30")
+
 print(stock_df_2)
-print("RUNNING TILL HERE")
+
+
 hourly_df_2 = stock_df_2.resample('H').agg({'Open': 'first', 'High': 'max', 'Low': 'min', 'Close': 'last', 'Volume': 'sum'})
 hourly_df_2.dropna(inplace=True)
+print(hourly_df_2)
 hourly_df_2.index = hourly_df_2.index + pd.Timedelta(minutes=15)
-print('HOURLY TIMEFRAME')
+print('HOURLY TIMEFRAME start from 9:15')
 print(hourly_df_2)
 
 

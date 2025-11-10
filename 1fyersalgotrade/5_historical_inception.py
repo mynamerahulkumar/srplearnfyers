@@ -1,8 +1,4 @@
-"""
-Created By: Aseem Singhal
-Fyers API V3
 
-"""
 
 import os
 import datetime as dt
@@ -12,11 +8,12 @@ import pytz
 
 
 #generate trading session
-client_id = open("client_id.txt",'r').read()
-access_token = open("access_token.txt",'r').read()
+client_id = open("secrets/client_id.txt",'r').read()
+access_token = open("secrets/access_token.txt",'r').read()
 
 # Initialize the FyersModel instance with your client_id, access_token, and enable async mode
-fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="C:/Users/aseem/Downloads/")
+fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="/Users/rahulkumar/Documents/GitHub/srplearnfyers/1fyersalgotrade/logs")
+
 
 def fetchOHLC_full(ticker,interval,inception_date):
 
@@ -26,11 +23,11 @@ def fetchOHLC_full(ticker,interval,inception_date):
     # Create a DataFrame
     columns = ['Timestamp','Open','High','Low','Close','Volume']
     df = pd.DataFrame(columns=columns)
-
+## get all data by 50 days loop if there is more data
     while True:
-        from_date_string = from_date.strftime("%Y-%m-%d")
+        from_date_string = from_date.strftime("%Y-%m-%d") #2025-05-01 +50 day (2025-06-21)# #next from.(2025-06-22)
         ttoday = dt.date.today()
-        to_date_string = ttoday.strftime("%Y-%m-%d")
+        to_date_string = ttoday.strftime("%Y-%m-%d")#2025-10-30 #(2025-10-01)
 
         if from_date.date() >= (dt.date.today() - dt.timedelta(50)):
             data = {
@@ -73,12 +70,12 @@ def fetchOHLC_full(ticker,interval,inception_date):
     return (df)
 
 # Fetch OHLC data using the function
-response_df = fetchOHLC_full("NSE:NIFTY50-INDEX","5","2023-01-01")
+response_df = fetchOHLC_full("NSE:NIFTY50-INDEX","5","2025-05-01")
 
 # Print the DataFrame
 print(response_df)
 
 # Save data to a CSV file
-response_df.to_csv('output_full.csv', index=False)
+response_df.to_csv('output_data/output_full.csv', index=False)
 
 

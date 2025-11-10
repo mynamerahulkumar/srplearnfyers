@@ -63,6 +63,9 @@ typings/
 *.tgz
 # Yarn Integrity file
 .yarn-integrity
+# Secrets directory
+secrets/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
