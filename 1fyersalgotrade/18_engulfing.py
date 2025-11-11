@@ -1,8 +1,4 @@
-"""
-Created By: Aseem Singhal
-Fyers API V3
 
-"""
 
 import pandas as pd
 from fyers_apiv3 import fyersModel

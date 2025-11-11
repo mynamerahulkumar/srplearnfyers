@@ -1,10 +1,14 @@
-
+"""
+Created By: Aseem Singhal
+Fyers API V3
+"""
 
 import pandas as pd
 from fyers_apiv3 import fyersModel
 import datetime as dt
 import pytz
-
+import numpy as np
+import statsmodels.api as sm    #pip install statsmodels
 
 #generate trading session
 client_id = open("client_id.txt",'r').read()
@@ -45,29 +49,27 @@ def fetchOHLC2(ticker,interval,duration):
     return (df)
 
 
-def shooting_star(ohlc_df):
-    """In this function, we're checking two conditions to identify Shooting Star patterns:
-    one for when the candle's body is at the bottom of the range,
-    and the other for when it's at the top of the range. """
-    df = ohlc_df.copy()
+def trend(df):
+    trend = None
 
-    # Initialize an empty list to store the Shooting Star values
-    shooting_star_values = []
+    i = len(df) -1
+    # Uptrend condition
+    if df['Close'][i] > df['Open'][i] and df['Close'][i-1] > df['Open'][i-1] and df['Close'][i-2] > df['Open'][i-2] and\
+            df['High'][i] > df['High'][i - 1] and df['High'][i - 1] > df['High'][i - 2] and \
+            df['Low'][i] > df['Low'][i - 1] and df['Low'][i - 1] > df['Low'][i - 2]:
+        trend = 'Uptrend'
 
-    # Iterate through rows and perform the comparison
-    for index, row in df.iterrows():
-        if (row["Open"] - row["Close"] > 0) and (row["High"] - row["Open"] >= 2 * (row["Close"] - row["Low"])):
-            shooting_star_values.append(True)
-        elif (row["Close"] - row["Open"] > 0) and (row["High"] - row["Close"] >= 2 * (row["Open"] - row["Low"])):
-            shooting_star_values.append(True)
-        else:
-            shooting_star_values.append(False)
+    # Downtrend condition
+    elif df['Close'][i] < df['Open'][i] and df['Close'][i-1] < df['Open'][i-1] and df['Close'][i-2] < df['Open'][i-2] and\
+            df['High'][i] < df['High'][i - 1] and df['High'][i - 1] < df['High'][i - 2] and\
+            df['Low'][i] < df['Low'][i - 1] and df['Low'][i - 1] < df['Low'][i - 2] :
+        trend = 'Downtrend'
 
-    # Create a new 'ShootingStar' column in the DataFrame
-    df["ShootingStar"] = shooting_star_values
+    else:
+        trend = None
 
-    return df
+    return trend
 
-response_df = fetchOHLC2("NSE:SBIN-EQ","30",5)
-shootingstar_df = shooting_star(response_df)
-print(shootingstar_df)
+response_df = fetchOHLC2("NSE:RELIANCE-EQ","5",5)
+trd = trend(response_df)
+print("Trend :",trd)

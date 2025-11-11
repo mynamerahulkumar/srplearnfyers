@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created By: Aseem Singhal
 
-"""
 import pandas as pd
 
 file_name = "sbin_1min.csv"

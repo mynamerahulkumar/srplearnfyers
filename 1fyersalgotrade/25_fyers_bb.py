@@ -1,10 +1,14 @@
+"""
+Created By: Aseem Singhal
+Fyers API V3
 
-
-import pandas as pd
-from fyers_apiv3 import fyersModel
+"""
 import datetime as dt
+from fyers_apiv3 import fyersModel
+import pandas as pd
 import pytz
-
+import matplotlib.pyplot as plt
+import mplfinance as mpf
 
 #generate trading session
 client_id = open("client_id.txt",'r').read()
@@ -45,29 +49,33 @@ def fetchOHLC2(ticker,interval,duration):
     return (df)
 
 
-def shooting_star(ohlc_df):
-    """In this function, we're checking two conditions to identify Shooting Star patterns:
-    one for when the candle's body is at the bottom of the range,
-    and the other for when it's at the top of the range. """
-    df = ohlc_df.copy()
-
-    # Initialize an empty list to store the Shooting Star values
-    shooting_star_values = []
-
-    # Iterate through rows and perform the comparison
-    for index, row in df.iterrows():
-        if (row["Open"] - row["Close"] > 0) and (row["High"] - row["Open"] >= 2 * (row["Close"] - row["Low"])):
-            shooting_star_values.append(True)
-        elif (row["Close"] - row["Open"] > 0) and (row["High"] - row["Close"] >= 2 * (row["Open"] - row["Low"])):
-            shooting_star_values.append(True)
-        else:
-            shooting_star_values.append(False)
-
-    # Create a new 'ShootingStar' column in the DataFrame
-    df["ShootingStar"] = shooting_star_values
-
+def bollingerBand(DF,window=15, num_std_devs=2):
+    "function to calculate Bollinger Band"
+    df = DF.copy()
+    df["MA"] = df['Close'].rolling(window).mean()
+    df["BB_up"] = df["MA"] + df['Close'].rolling(window).std()*num_std_devs
+    df["BB_dn"] = df["MA"] - df['Close'].rolling(window).std()*num_std_devs
+    df["BB_width"] = df["BB_up"] - df["BB_dn"]
+    df.dropna(inplace=True)
     return df
 
-response_df = fetchOHLC2("NSE:SBIN-EQ","30",5)
-shootingstar_df = shooting_star(response_df)
-print(shootingstar_df)
+
+# Fetch OHLC data using the function
+stock_df = fetchOHLC2("NSE:SBIN-EQ","30",5)
+print(stock_df)
+
+bb_df = bollingerBand(stock_df,15)
+print(bb_df)
+
+df = pd.DataFrame(bb_df)
+df['Timestamp2'] = pd.to_datetime(df['Timestamp2'])
+df.set_index('Timestamp2', inplace=True)
+print(df)
+
+# Create a plot with a candlestick chart and Bollinger Bands as lines
+mpf.plot(df, type='candle', style='charles', title='Candlestick Chart with Bollinger Bands',
+         addplot=[
+             mpf.make_addplot(df['BB_up'], panel=0, color='orange', secondary_y=False),
+             mpf.make_addplot(df['BB_dn'], panel=0, color='cyan', secondary_y=False),
+             mpf.make_addplot(df['MA'], panel=0, color='black', secondary_y=False)
+         ])

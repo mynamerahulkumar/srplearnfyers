@@ -1,9 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+Created By: Aseem Singhal
+Fyers API V3
 
-
+"""
 import datetime as dt
 from fyers_apiv3 import fyersModel
 import pandas as pd
 import pytz
+import matplotlib.pyplot as plt
 
 #generate trading session
 client_id = open("client_id.txt",'r').read()
@@ -43,39 +48,42 @@ def fetchOHLC2(ticker,interval,duration):
     return (df)
 
 
-def pivotpoints_today(ohlc_day):
-    """returns pivot point and support/resistance levels"""
-    high = round(ohlc_day["High"].iloc[-1],2)
-    low = round(ohlc_day["Low"].iloc[-1],2)
-    close = round(ohlc_day["Close"].iloc[-1],2)
-    pivot = round((high + low + close)/3,2)
-    r1 = round((2*pivot - low),2)
-    r2 = round((pivot + (high - low)),2)
-    r3 = round((high + 2*(pivot - low)),2)
-    s1 = round((2*pivot - high),2)
-    s2 = round((pivot - (high - low)),2)
-    s3 = round((low - 2*(high - pivot)),2)
-    return (pivot,r1,r2,r3,s1,s2,s3)
+def MACD(DF,a,b,c):
+    """function to calculate MACD
+       typical values a(fast moving average) = 12; 
+                      b(slow moving average) =26; 
+                      c(signal line ma window) =9"""
+    df = DF.copy()
+    df["MA_Fast"]=df["Close"].ewm(span=a,min_periods=a).mean()
+    df["MA_Slow"]=df["Close"].ewm(span=b,min_periods=b).mean()
+    df["MACD"]=df["MA_Fast"]-df["MA_Slow"]
+    df["Signal"]=df["MACD"].ewm(span=c,min_periods=c).mean()
+    df.dropna(inplace=True)
+    return df
 
 
 # Fetch OHLC data using the function
 stock_df = fetchOHLC2("NSE:SBIN-EQ","30",100)
-#print(stock_df)
-
-stock_df['Timestamp2'] = pd.to_datetime(stock_df['Timestamp2'])
-stock_df.drop(columns=['Timestamp'], inplace=True)
-stock_df.set_index('Timestamp2', inplace=True)
 print(stock_df)
 
-daily_df = stock_df.resample('D').agg({'Open': 'first', 'High': 'max', 'Low': 'min', 'Close': 'last', 'Volume': 'sum'})
-daily_df.dropna(inplace=True)
-print(daily_df)
-
-pivot,r1,r2,r3,s1,s2,s3 = pivotpoints_today(daily_df)
-print("Pivot of today: ",pivot)
-print("R1: ",r1)
-print("S1: ",s1)
+macd_df = MACD(stock_df,12,26,9)
+print(macd_df)
 
 
+# Create a plot with two subplots
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
 
+# Plot the CLOSE price of the stock
+ax1.plot(stock_df.index, stock_df['Close'], label='Close Price', color='blue')
+ax1.set_ylabel('Close Price')
+ax1.legend()
 
+# Plot the MACD and Signal line
+ax2.plot(macd_df.index, macd_df['MACD'], label='MACD', color='orange')
+ax2.plot(macd_df.index, macd_df['Signal'], label='Signal Line', color='green')
+ax2.set_xlabel('Date')
+ax2.set_ylabel('MACD')
+ax2.legend()
+
+plt.tight_layout()
+plt.show()
